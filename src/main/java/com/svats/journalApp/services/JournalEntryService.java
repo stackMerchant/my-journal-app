@@ -32,16 +32,15 @@ public class JournalEntryService {
         return true;
     }
 
-    public JournalEntry updateById(ObjectId entryId, JournalEntry newEntry) {
-        JournalEntry oldEntry = journalEntryRepository.findById(entryId).orElse(null);
-        if (oldEntry != null) {
+    public Optional<JournalEntry> updateById(ObjectId entryId, JournalEntry newEntry) {
+        return journalEntryRepository.findById(entryId).map(oldEntry -> {
             String newTitle = newEntry.getTitle();
             String newContent = newEntry.getContent();
             if (newTitle != null && !newTitle.equals("")) oldEntry.setTitle(newTitle);
             if (newContent != null && !newContent.equals("")) oldEntry.setContent(newContent);
             journalEntryRepository.save(oldEntry);
-        }
-        return oldEntry;
+            return newEntry;
+        });
     }
 
 }
