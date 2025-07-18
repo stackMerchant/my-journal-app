@@ -1,33 +1,12 @@
 package com.svats.journalApp.entity;
 
-public class InMemoryJournalEntry {
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
+public class InMemoryJournalEntry {
     private String id;
     private String title;
     private String content;
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
 }
