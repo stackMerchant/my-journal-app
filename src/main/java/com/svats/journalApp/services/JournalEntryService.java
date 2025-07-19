@@ -6,6 +6,7 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,12 +16,21 @@ public class JournalEntryService {
     @Autowired
     JournalEntryRepository journalEntryRepository;
 
+    @Autowired
+    UserService userService;
+
     public List<JournalEntry> getAll() {
         return journalEntryRepository.findAll();
     }
 
-    public void saveEntry(JournalEntry journalEntry) {
-        journalEntryRepository.save(journalEntry);
+    public Optional<Boolean> save(String username, JournalEntry journalEntry) {
+        return userService.findByUsername(username).map(user -> {
+            journalEntry.setLocalDate(LocalDateTime.now()); // Update Time
+            JournalEntry savedEntry = journalEntryRepository.save(journalEntry); // Save new journal entry
+            user.getJournalEntries().add(savedEntry); // Add reference for user
+            userService.save(user); // Save updated user
+            return true;
+        });
     }
 
     public Optional<JournalEntry> getById(ObjectId entryId) {
@@ -36,7 +46,7 @@ public class JournalEntryService {
         return journalEntryRepository.findById(entryId).map(oldEntry -> {
             String newTitle = newEntry.getTitle();
             String newContent = newEntry.getContent();
-            if (newTitle != null && !newTitle.equals("")) oldEntry.setTitle(newTitle);
+            if (!newTitle.equals("")) oldEntry.setTitle(newTitle);
             if (newContent != null && !newContent.equals("")) oldEntry.setContent(newContent);
             journalEntryRepository.save(oldEntry);
             return newEntry;

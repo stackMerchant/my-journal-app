@@ -1,10 +1,8 @@
 package com.svats.journalApp.entity;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class InMemoryJournalEntry {
     private String id;
     private String title;
