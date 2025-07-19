@@ -5,6 +5,7 @@ import com.svats.journalApp.repository.JournalEntryRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,6 +24,7 @@ public class JournalEntryService {
         return journalEntryRepository.findAll();
     }
 
+    @Transactional
     public Optional<Boolean> save(String username, JournalEntry journalEntry) {
         return userService.findByUsername(username).map(user -> {
             journalEntry.setLocalDate(LocalDateTime.now()); // Update Time
