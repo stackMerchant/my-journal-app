@@ -1,10 +1,13 @@
 package com.svats.journalApp.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
 import java.util.Optional;
 import java.util.function.Supplier;
 
+@Slf4j
 public class ControllerHelpers {
 
     /** HTTP Status Code Handlers */
@@ -21,7 +24,7 @@ public class ControllerHelpers {
         try {
             return supplier.get();
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            log.warn(e.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }

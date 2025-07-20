@@ -1,6 +1,6 @@
 package com.svats.journalApp.controller;
 
-import com.svats.journalApp.services.UserService;
+import com.svats.journalApp.service.UserService;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

@@ -2,8 +2,8 @@ package com.svats.journalApp.controller;
 
 import com.svats.journalApp.entity.JournalEntry;
 import com.svats.journalApp.entity.User;
-import com.svats.journalApp.services.JournalEntryService;
-import com.svats.journalApp.services.UserService;
+import com.svats.journalApp.service.JournalEntryService;
+import com.svats.journalApp.service.UserService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

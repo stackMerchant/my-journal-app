@@ -1,4 +1,4 @@
-package com.svats.journalApp.services;
+package com.svats.journalApp.service;
 
 import com.svats.journalApp.entity.User;
 import com.svats.journalApp.repository.UserRepository;

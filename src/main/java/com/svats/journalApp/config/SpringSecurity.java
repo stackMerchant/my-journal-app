@@ -1,6 +1,6 @@
 package com.svats.journalApp.config;
 
-import com.svats.journalApp.services.UserDetailsServiceImpl;
+import com.svats.journalApp.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

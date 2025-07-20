@@ -1,4 +1,4 @@
-package com.svats.journalApp.services;
+package com.svats.journalApp.service;
 
 import com.svats.journalApp.controller.UserController;
 import com.svats.journalApp.entity.JournalEntry;
