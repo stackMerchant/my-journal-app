@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/in-memory/journal-entry")
+@RequestMapping("/in-memory/journal")
 public class InMemoryJournalEntryController {
 
     private Map<String, InMemoryJournalEntry> journalEntries = new HashMap<>();

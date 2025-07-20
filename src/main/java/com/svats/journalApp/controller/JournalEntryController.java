@@ -8,13 +8,14 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import static com.svats.journalApp.controller.ControllerHelpers.*;
 
 @RestController
-@RequestMapping("/journal-entry")
+@RequestMapping("/journal")
 public class JournalEntryController {
 
     @Autowired
@@ -23,41 +24,44 @@ public class JournalEntryController {
     @Autowired
     UserService userService;
 
-    @GetMapping("/all")
-    public List<JournalEntry> getAll() {
-        return journalEntryService.getAll();
+    @PostMapping("/create")
+    public ResponseEntity<Boolean> createEntry(@RequestBody JournalEntry entry) {
+        return handleExceptionOptional(() -> {
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+            return journalEntryService.create(username, entry);
+        }, HttpStatus.CREATED);
     }
 
-    @GetMapping("/all/{username}")
-    public ResponseEntity<List<JournalEntry>> getAllByUsername(@PathVariable String username) {
+    @GetMapping("/all")
+    public ResponseEntity<List<JournalEntry>> getAllEntriesForUser() {
         return handleExceptionOptional(() -> {
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
             return userService.findByUsername(username).map(User::getJournalEntries);
         });
     }
 
-    @PostMapping("/{username}")
-    public ResponseEntity<Boolean> createEntry(@PathVariable String username, @RequestBody JournalEntry entry) {
-        return handleExceptionOptional(() -> {
-            return journalEntryService.save(username, entry);
-        }, HttpStatus.CREATED);
-    }
-
     @GetMapping("/id/{entryId}")
     public ResponseEntity<JournalEntry> getById(@PathVariable ObjectId entryId) {
-        return handleExceptionOptional(() -> journalEntryService.getById(entryId));
-    }
-
-    @DeleteMapping("/id/{entryId}")
-    public ResponseEntity<JournalEntry> deleteById(@PathVariable ObjectId entryId) {
-        return handleException(() -> {
-            journalEntryService.deleteById(entryId);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return handleExceptionOptional(() -> {
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+            return journalEntryService.getById(username, entryId);
         });
     }
 
+    @DeleteMapping("/id/{entryId}")
+    public ResponseEntity<Boolean> deleteById(@PathVariable ObjectId entryId) {
+        return handleExceptionOptional(() -> {
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+            return journalEntryService.deleteById(username, entryId);
+        }, HttpStatus.NO_CONTENT);
+    }
+
     @PutMapping("/id/{entryId}")
-    public ResponseEntity<JournalEntry> updateById(@PathVariable ObjectId entryId, @RequestBody JournalEntry newEntry) {
-        return handleExceptionOptional(() -> journalEntryService.updateById(entryId, newEntry));
+    public ResponseEntity<Boolean> updateById(@PathVariable ObjectId entryId, @RequestBody JournalEntry newEntry) {
+        return handleExceptionOptional(() -> {
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+            return journalEntryService.updateById(username, entryId, newEntry);
+        });
     }
 
 }

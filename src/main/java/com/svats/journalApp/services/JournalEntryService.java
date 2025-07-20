@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -20,38 +19,45 @@ public class JournalEntryService {
     @Autowired
     UserService userService;
 
-    public List<JournalEntry> getAll() {
-        return journalEntryRepository.findAll();
-    }
-
     @Transactional
-    public Optional<Boolean> save(String username, JournalEntry journalEntry) {
+    public Optional<Boolean> create(String username, JournalEntry journalEntry) {
         return userService.findByUsername(username).map(user -> {
             journalEntry.setLocalDate(LocalDateTime.now()); // Update Time
             JournalEntry savedEntry = journalEntryRepository.save(journalEntry); // Save new journal entry
-            user.getJournalEntries().add(savedEntry); // Add reference for user
-            userService.save(user); // Save updated user
+            userService.addJournalEntriesToUser(user, savedEntry); // Save updated user
             return true;
         });
     }
 
-    public Optional<JournalEntry> getById(ObjectId entryId) {
-        return journalEntryRepository.findById(entryId);
+    public Optional<JournalEntry> getById(String username, ObjectId entryId) {
+        return userService.findByUsername(username).flatMap(user -> {
+            boolean desiredIdExists = user.getJournalEntries().stream().anyMatch(e -> e.getId().equals(entryId));
+            return desiredIdExists ? journalEntryRepository.findById(entryId) : Optional.empty();
+        });
     }
 
-    public boolean deleteById(ObjectId entryId) {
-        journalEntryRepository.deleteById(entryId);
-        return true;
+    public Optional<Boolean> deleteById(String username, ObjectId entryId) {
+        return userService.findByUsername(username).map(user -> {
+            boolean desiredIdExists = user.getJournalEntries().stream().anyMatch(e -> e.getId().equals(entryId));
+            if (desiredIdExists) {
+                journalEntryRepository.deleteById(entryId);
+                return true;
+            } else return false;
+        });
     }
 
-    public Optional<JournalEntry> updateById(ObjectId entryId, JournalEntry newEntry) {
-        return journalEntryRepository.findById(entryId).map(oldEntry -> {
-            String newTitle = newEntry.getTitle();
-            String newContent = newEntry.getContent();
-            if (!newTitle.equals("")) oldEntry.setTitle(newTitle);
-            if (newContent != null && !newContent.equals("")) oldEntry.setContent(newContent);
-            journalEntryRepository.save(oldEntry);
-            return newEntry;
+    public Optional<Boolean> updateById(String username, ObjectId entryId, JournalEntry newEntry) {
+        return userService.findByUsername(username).flatMap(user -> {
+            boolean desiredIdExists = user.getJournalEntries().stream().anyMatch(e -> e.getId().equals(entryId));
+            if (!desiredIdExists) return Optional.empty();
+            return journalEntryRepository.findById(entryId).map(oldEntry -> {
+                String newTitle = newEntry.getTitle();
+                String newContent = newEntry.getContent();
+                if (!newTitle.equals("")) oldEntry.setTitle(newTitle);
+                if (newContent != null && !newContent.equals("")) oldEntry.setContent(newContent);
+                journalEntryRepository.save(oldEntry);
+                return true;
+            });
         });
     }
 

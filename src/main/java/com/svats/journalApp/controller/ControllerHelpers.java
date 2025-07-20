@@ -9,12 +9,12 @@ public class ControllerHelpers {
 
     /** HTTP Status Code Handlers */
 
-    static <T> ResponseEntity<T> handleExceptionOptional(Supplier<? extends Optional<T>> supplier, HttpStatus status) {
-        return handleException(() -> handleOptional(supplier.get(), status));
+    static <T> ResponseEntity<T> handleExceptionOptional(Supplier<? extends Optional<T>> supplier) {
+        return handleExceptionOptional(supplier, HttpStatus.OK);
     }
 
-    static <T> ResponseEntity<T> handleExceptionOptional(Supplier<? extends Optional<T>> supplier) {
-        return handleException(() -> handleOptional(supplier.get(), HttpStatus.OK));
+    static <T> ResponseEntity<T> handleExceptionOptional(Supplier<? extends Optional<T>> supplier, HttpStatus status) {
+        return handleException(() -> handleOptional(supplier.get(), status));
     }
 
     static <T> ResponseEntity<T> handleException(Supplier<? extends ResponseEntity<T>> supplier) {
