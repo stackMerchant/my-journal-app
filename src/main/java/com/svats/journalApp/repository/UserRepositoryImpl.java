@@ -35,8 +35,7 @@ public class UserRepositoryImpl {
                 validRole
         ));
 
-        List<User> users = mongoTemplate.find(query, User.class);
-        return users;
+        return mongoTemplate.find(query, User.class);
     }
 
 }
