@@ -3,11 +3,13 @@ package com.svats.journalApp.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 import java.util.function.Supplier;
 
 @Slf4j
+@Component
 public class ControllerHelpers {
 
     /** HTTP Status Code Handlers */
