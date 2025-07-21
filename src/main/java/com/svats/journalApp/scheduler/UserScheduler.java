@@ -2,9 +2,10 @@ package com.svats.journalApp.scheduler;
 
 import com.svats.journalApp.entity.JournalEntry;
 import com.svats.journalApp.entity.User;
+import com.svats.journalApp.model.JournalAnalysisForMail;
 import com.svats.journalApp.repository.UserRepositoryImpl;
-import com.svats.journalApp.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -16,10 +17,10 @@ import java.util.stream.Collectors;
 public class UserScheduler {
 
     @Autowired
-    EmailService emailService;
+    UserRepositoryImpl userRepository;
 
     @Autowired
-    UserRepositoryImpl userRepository;
+    KafkaTemplate<String, JournalAnalysisForMail> kafkaTemplate;
 
     @Scheduled(cron = "0 0 9 * * SUN")
     public void fetchUsersAndSendMail() {
@@ -31,8 +32,8 @@ public class UserScheduler {
                     .filter(x -> x.getLocalDate().isAfter(dateLimit)).collect(Collectors.toList());
             // Get analysis
             String analysis = getAnalysis(filteredJournalEntries);
-            // Send mail
-            emailService.sendMail(user.getEmail(), "Last week analysis", analysis);
+            JournalAnalysisForMail mailDTO = new JournalAnalysisForMail(user.getEmail(), analysis);
+            kafkaTemplate.send("journal-mails", user.getEmail(), mailDTO);
         }
     }
 
