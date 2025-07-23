@@ -1,6 +1,7 @@
 package com.svats.journalApp.controller;
 
 import com.svats.journalApp.entity.User;
+import com.svats.journalApp.scheduler.UserScheduler;
 import com.svats.journalApp.service.UserDetailsServiceImpl;
 import com.svats.journalApp.service.UserService;
 import com.svats.journalApp.utils.JwtUtil;
@@ -30,9 +31,20 @@ public class PublicController {
     @Autowired
     JwtUtil jwtUtil;
 
+    @Autowired
+    UserScheduler userScheduler;
+
     @GetMapping("/health-check")
     public String healthCheck() {
         return "Ok";
+    }
+
+    @GetMapping("/trigger-mails")
+    public ResponseEntity<String> triggerMails() {
+        return handleException(() -> {
+            userScheduler.fetchUsersAndSendMail();
+            return new ResponseEntity<>("Done", HttpStatus.CREATED);
+        });
     }
 
     @PostMapping("/signup")

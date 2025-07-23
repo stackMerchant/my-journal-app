@@ -4,6 +4,7 @@ import com.svats.journalApp.entity.JournalEntry;
 import com.svats.journalApp.entity.User;
 import com.svats.journalApp.model.JournalAnalysisForMail;
 import com.svats.journalApp.repository.UserRepositoryImpl;
+import com.svats.journalApp.utils.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -33,7 +34,9 @@ public class UserScheduler {
             // Get analysis
             String analysis = getAnalysis(filteredJournalEntries);
             JournalAnalysisForMail mailDTO = new JournalAnalysisForMail(user.getEmail(), analysis);
-            kafkaTemplate.send("journal-mails", user.getEmail(), mailDTO);
+            ExceptionUtils.handleException(() -> {
+                kafkaTemplate.send("journal-mails", user.getEmail(), mailDTO);
+            });
         }
     }
 
