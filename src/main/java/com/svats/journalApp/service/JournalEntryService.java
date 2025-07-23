@@ -22,7 +22,6 @@ public class JournalEntryService {
     @Transactional
     public Optional<Boolean> create(String username, JournalEntry journalEntry) {
         return userService.findByUsername(username).map(user -> {
-            journalEntry.setLocalDate(LocalDateTime.now()); // Update Time
             JournalEntry savedEntry = journalEntryRepository.save(journalEntry); // Save new journal entry
             userService.addJournalEntriesToUser(user, savedEntry); // Save updated user
             return true;

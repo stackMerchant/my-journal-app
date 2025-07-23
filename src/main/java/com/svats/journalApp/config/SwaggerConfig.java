@@ -20,7 +20,7 @@ public class SwaggerConfig {
                 .info(
                         new Info()
                                 .title("Journal App")
-                                .description("Using Spring boot, Redis, JWT & Kafka. Built for learning.")
+                                .description("Using Spring Boot, MongoDB, Redis, JWT & Kafka. Built for learning.")
                 )
                 // .tags() // To name controllers
                 .servers(Arrays.asList(

@@ -4,6 +4,9 @@ import com.svats.journalApp.entity.JournalEntry;
 import com.svats.journalApp.entity.User;
 import com.svats.journalApp.service.JournalEntryService;
 import com.svats.journalApp.service.UserService;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NonNull;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,11 +14,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import static com.svats.journalApp.controller.ControllerHelpers.*;
+
+import static com.svats.journalApp.controller.ControllerHelpers.handleExceptionOptional;
 
 @RestController
-@RequestMapping("/journal")
+@RequestMapping("/journal-entry")
 public class JournalEntryController {
 
     @Autowired
@@ -25,10 +30,10 @@ public class JournalEntryController {
     UserService userService;
 
     @PostMapping("/create")
-    public ResponseEntity<Boolean> createEntry(@RequestBody JournalEntry entry) {
+    public ResponseEntity<Boolean> createEntry(@RequestBody CreateJournalEntryDTO createJournalEntryDTO) {
         return handleExceptionOptional(() -> {
             String username = SecurityContextHolder.getContext().getAuthentication().getName();
-            return journalEntryService.create(username, entry);
+            return journalEntryService.create(username, createJournalEntryDTO.toJournalEntry());
         }, HttpStatus.CREATED);
     }
 
@@ -41,27 +46,42 @@ public class JournalEntryController {
     }
 
     @GetMapping("/id/{entryId}")
-    public ResponseEntity<JournalEntry> getById(@PathVariable ObjectId entryId) {
+    public ResponseEntity<JournalEntry> getById(@PathVariable String entryId) {
         return handleExceptionOptional(() -> {
             String username = SecurityContextHolder.getContext().getAuthentication().getName();
-            return journalEntryService.getById(username, entryId);
+            ObjectId objectId = new ObjectId(entryId);
+            return journalEntryService.getById(username, objectId);
         });
     }
 
     @DeleteMapping("/id/{entryId}")
-    public ResponseEntity<Boolean> deleteById(@PathVariable ObjectId entryId) {
+    public ResponseEntity<Boolean> deleteById(@PathVariable String entryId) {
         return handleExceptionOptional(() -> {
             String username = SecurityContextHolder.getContext().getAuthentication().getName();
-            return journalEntryService.deleteById(username, entryId);
+            ObjectId objectId = new ObjectId(entryId);
+            return journalEntryService.deleteById(username, objectId);
         }, HttpStatus.NO_CONTENT);
     }
 
     @PutMapping("/id/{entryId}")
-    public ResponseEntity<Boolean> updateById(@PathVariable ObjectId entryId, @RequestBody JournalEntry newEntry) {
+    public ResponseEntity<Boolean> updateById(@PathVariable String entryId, @RequestBody JournalEntry newEntry) {
         return handleExceptionOptional(() -> {
             String username = SecurityContextHolder.getContext().getAuthentication().getName();
-            return journalEntryService.updateById(username, entryId, newEntry);
+            ObjectId objectId = new ObjectId(entryId);
+            return journalEntryService.updateById(username, objectId, newEntry);
         });
+    }
+
+    @Data
+    @AllArgsConstructor
+    private static class CreateJournalEntryDTO {
+        @NonNull
+        private String title;
+        private String content;
+
+        JournalEntry toJournalEntry() {
+            return JournalEntry.builder().title(title).content(content).localDate(LocalDateTime.now()).build();
+        }
     }
 
 }

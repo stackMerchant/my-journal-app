@@ -5,6 +5,9 @@ import com.svats.journalApp.scheduler.UserScheduler;
 import com.svats.journalApp.service.UserDetailsServiceImpl;
 import com.svats.journalApp.service.UserService;
 import com.svats.journalApp.utils.JwtUtil;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,21 +51,50 @@ public class PublicController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<User> signup(@RequestBody User user) {
+    public ResponseEntity<String> signup(@RequestBody CreateUserDTO createUserDTO) {
         return handleException(() -> {
-            userService.createNewUser(user);
-            return new ResponseEntity<>(user, HttpStatus.CREATED);
+            userService.createNewUser(createUserDTO.toUser());
+            return new ResponseEntity<>("User created", HttpStatus.CREATED);
         });
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody User user) {
+    public ResponseEntity<String> login(@RequestBody LoginUserDTO loginUserDTO) {
         return handleException(() -> {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
-            UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginUserDTO.getUsername(), loginUserDTO.getPassword()));
+            UserDetails userDetails = userDetailsService.loadUserByUsername(loginUserDTO.getUsername());
             String jwt = jwtUtil.generateToken(userDetails.getUsername());
             return new ResponseEntity<>(jwt, HttpStatus.OK);
         });
+    }
+
+    @Data
+    @AllArgsConstructor
+    private static class CreateUserDTO {
+        @NonNull
+        private String username;
+
+        @NonNull
+        private String password;
+
+        private String email;
+        private boolean wantsAnalysis;
+
+        public User toUser() {
+            return User.builder()
+                    .username(username).password(password)
+                    .email(email).wantsAnalysis(wantsAnalysis)
+                    .build();
+        }
+    }
+
+    @Data
+    private static class LoginUserDTO {
+        @NonNull
+        private String username;
+
+        @NonNull
+        private String password;
     }
 
 }
